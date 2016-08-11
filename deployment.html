@@ -1,0 +1,51 @@
+<html>
+    <head>
+        <title>Deployment Example</title>
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+        <script type="text/javascript">
+    $(function() {
+
+    var conn;
+    var formData = $("#deployment");
+    var statusMsg = $("#status");
+
+    $("#deployment").submit(function() {
+        alert("entered submit");
+        if (!conn) {
+            return false;
+        }
+        var values = JSON.stringify(jQuery('#deployment').serializeArray());
+        alert(values);
+        conn.send(values);
+        return false
+    });
+
+    if (window["WebSocket"]) {
+        //alert("calling websocket")
+        conn = new WebSocket("ws://{{$}}/ws");
+        conn.onclose = function(evt) {
+            statusMsg.val("Connection closed");
+        }
+        conn.onmessage = function(evt) {
+            statusMsg.val(evt.data);
+        }
+    } else {
+        statusMsg.val("Your browser does not support WebSockets")
+    }
+    });
+        </script>
+    </head>
+    <body>
+        <form id="deployment">
+            Deployment Name: <input type="text" name="name" size="255" /><br/>
+            <input type="checkbox" name="rhev" value="rhev" />Red Hat Virtualization<br/>
+            <input type="checkbox" name="osp" value="osp" />Red Hat OpenStack Platform<br/>
+            <input type="checkbox" name="cfme" value="cfme" />Red Hat CloudForms<br/>
+            <input type="checkbox" name="ose" value="ose" />OpenShift Enterprise by Red Hat<br/>
+            <input type="submit" value="Deploy" />
+            <br/>
+            <br/>
+            Status:<input type="text" id="status" /><br/>
+        </form>
+    </body>
+</html>
